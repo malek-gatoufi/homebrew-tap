@@ -1,8 +1,8 @@
 cask "claude-usage-widget" do
-  version "1.1.6"
-  sha256 "803e85f842266deb9b030d2d5db53a780dd270380783b00a9f6b6a1e9205e434"
+  version "1.1.7"
+  sha256 "279e94dc337f757813fb4247bebf84e054f23d070460d64e0d3553bb3fd79bce"
 
-  url "https://github.com/malek-gatoufi/claude-usage-widget/releases/download/v1.1.6/ClaudeUsage.zip"
+  url "https://github.com/malek-gatoufi/claude-usage-widget/releases/download/v1.1.7/ClaudeUsage.zip"
   name "Claude Usage Widget"
   desc "macOS menu bar + desktop widget for Claude usage monitoring"
   homepage "https://github.com/malek-gatoufi/claude-usage-widget"
@@ -12,6 +12,42 @@ cask "claude-usage-widget" do
   postflight do
     system_command "/usr/bin/xattr",
       args: ["-cr", "#{appdir}/ClaudeUsage.app"]
+
+    # Install widget-server.py and LaunchAgent
+    server_src = "#{appdir}/ClaudeUsage.app/Contents/Resources/widget-server.py"
+    server_dst = "#{Dir.home}/.claude-widget/widget-server.py"
+    plist_dst  = "#{Dir.home}/Library/LaunchAgents/lekmax.ClaudeUsage.WidgetData.plist"
+
+    FileUtils.mkdir_p "#{Dir.home}/.claude-widget"
+    FileUtils.cp server_src, server_dst
+    File.chmod(0755, server_dst)
+
+    File.write(plist_dst, <<~PLIST)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>Label</key>
+          <string>lekmax.ClaudeUsage.WidgetData</string>
+          <key>ProgramArguments</key>
+          <array>
+              <string>/usr/bin/python3</string>
+              <string>#{server_dst}</string>
+          </array>
+          <key>KeepAlive</key>
+          <true/>
+          <key>RunAtLoad</key>
+          <true/>
+          <key>StandardErrorPath</key>
+          <string>/tmp/ClaudeUsageWidget.log</string>
+      </dict>
+      </plist>
+    PLIST
+
+    system_command "/bin/launchctl",
+      args: ["unload", plist_dst], print_stderr: false
+    system_command "/bin/launchctl",
+      args: ["load", "-w", plist_dst]
   end
 
   zap trash: [
