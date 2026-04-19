@@ -1,8 +1,8 @@
 cask "claude-usage-widget" do
-  version "1.1.7"
-  sha256 "279e94dc337f757813fb4247bebf84e054f23d070460d64e0d3553bb3fd79bce"
+  version "1.1.8"
+  sha256 "8ff20768ad97ddc22209201d9862f4a14b02c3fdffeb4e909deee0591a6a476e"
 
-  url "https://github.com/malek-gatoufi/claude-usage-widget/releases/download/v1.1.7/ClaudeUsage.zip"
+  url "https://github.com/malek-gatoufi/claude-usage-widget/releases/download/v1.1.8/ClaudeUsage.zip"
   name "Claude Usage Widget"
   desc "macOS menu bar + desktop widget for Claude usage monitoring"
   homepage "https://github.com/malek-gatoufi/claude-usage-widget"
